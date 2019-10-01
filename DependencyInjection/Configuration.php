@@ -21,7 +21,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('realtyhub_invoice_painter');
 
 
-        $rootNode->isRequired()->cannotBeEmpty()->children()
+        $rootNode->isRequired()->children()
                     ->scalarNode('currency_symbol')->isRequired()->cannotBeEmpty()->end()
                     ->scalarNode('tax_short_name')->isRequired()->cannotBeEmpty()->end()
                 ->end();

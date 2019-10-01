@@ -13,6 +13,7 @@ class RealtyhubInvoicePainterExtension extends \Twig_Extension
         $lookup['pound'] = '&pound;';
         $lookup['euro'] = '&euro;';
         $lookup['yen'] = '&yen;';
+        $lookup['pln'] = 'z&#322;';
 
         if (array_key_exists(strtolower($currencySymbol), $lookup) )
         {
