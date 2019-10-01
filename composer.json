@@ -10,10 +10,10 @@
         }
     ],
     "require": {
-        "php":                      ">=5.3.3",
-        "symfony/framework-bundle": "~2.3",
-        "symfony/twig-bundle":      "~2.3",
-        "slik/dompdf-bundle":       "dev-master"
+        "php":                      ">=7.2",
+        "symfony/framework-bundle": "~4.3",
+        "symfony/twig-bundle":      "~4.3",
+        "knplabs/knp-snappy-bundle":       "~1.5"
     },
     "autoload": {
         "psr-4": { "Realtyhub\\InvoicePainterBundle\\": "" }
