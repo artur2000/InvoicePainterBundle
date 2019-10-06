@@ -6,18 +6,21 @@ class RealtyhubInvoicePainterExtension extends \Twig_Extension
 {
 
     protected $currencyHtmlEntity;
+    protected $currencyHtmlEntitySprintfFormat;
 
     public function __construct($currencySymbol)
     {
-        $lookup['dollar'] = '&#36;';
-        $lookup['pound'] = '&pound;';
-        $lookup['euro'] = '&euro;';
-        $lookup['yen'] = '&yen;';
-        $lookup['pln'] = 'z&#322;';
+        $lookup['dollar'] = '&#36;|%2$s%1$s';
+        $lookup['pound'] = '&pound;|%2$s%1$s';
+        $lookup['euro'] = '&euro;|%1$s %2$s';
+        $lookup['yen'] = '&yen;|%2$s%1$s';
+        $lookup['pln'] = 'z&#322;|%1$s %2$s';
 
         if (array_key_exists(strtolower($currencySymbol), $lookup) )
         {
-            $this->currencyHtmlEntity = $lookup[ $currencySymbol ];
+            $config = explode('|', $lookup[ $currencySymbol ]);
+            $this->currencyHtmlEntity = $config[0];
+            $this->currencyHtmlEntitySprintfFormat = $config[1];
         }
         else
         {
@@ -56,7 +59,7 @@ class RealtyhubInvoicePainterExtension extends \Twig_Extension
         }
 
         $str = number_format($str, $decimals, '.', ','); //Note: deliberately not using money_format() as it is lame
-        $str = $this->currencyHtmlEntity.$str; //add currency symbol. Note: use of "is_safe" option for this filter to prevent the already escaped html been escaped again
+        $str = sprintf($this->currencyHtmlEntitySprintfFormat, $str, $this->currencyHtmlEntity); //add currency symbol. Note: use of "is_safe" option for this filter to prevent the already escaped html been escaped again
 
         if ($negative)
         {
