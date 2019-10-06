@@ -7,13 +7,16 @@
     <parameters>
         <parameter key="realtyhub_invoice_painter.controller.class">Realtyhub\InvoicePainterBundle\Controller\IndexController</parameter>
         <parameter key="realtyhub_invoice_painter.twig.extension.class">Realtyhub\InvoicePainterBundle\Twig\RealtyhubInvoicePainterExtension</parameter>
+        <parameter key="realtyhub_invoice_painter.twig.invoice-template">RealtyhubInvoicePainterBundle::invoice.html.twig</parameter>
     </parameters>
 
     <services>
-        <service id="realtyhub_invoice_painter" class="%realtyhub_invoice_painter.controller.class%" >
+        <service id="realtyhub_invoice_painter" class="%realtyhub_invoice_painter.controller.class%" public="true">
             <argument type="service" id="templating" />
-            <argument type="service" id="slik_dompdf" />
+            <argument type="service" id="knp_snappy.pdf" />
             <argument>%realtyhub_invoice_painter.tax_short_name%</argument>
+            <argument>%realtyhub_invoice_painter.twig.invoice-view-template%</argument>
+            <tag name="controller.service_arguments" />
         </service>
 
         <service id="realtyhub_invoice_painter.twig.extension" class="%realtyhub_invoice_painter.twig.extension.class%">

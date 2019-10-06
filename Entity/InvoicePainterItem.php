@@ -11,16 +11,19 @@ class InvoicePainterItem
 
     protected $taxRate = null;
 
-    protected $amountEx = null;
+    protected $unitPriceEx = null;
 
-    protected $amountInc = null;
+    protected $unitPriceInc = null;
+
+    protected $units = 1;
 
 
-    static public function createFromParams($amountEx, $taxRate, $description, \DateTime $date)
+    static public function createFromParams($unitPriceEx, $units, $taxRate, $description, \DateTime $date)
     {
         $obj = new self;
 
-        $obj->setAmountEx($amountEx);
+        $obj->setUnitPriceEx($unitPriceEx);
+        $obj->setUnits($units);
         $obj->setTaxRate($taxRate);
         $obj->setDescription($description);
         $obj->setDate($date);
@@ -32,65 +35,66 @@ class InvoicePainterItem
     {
         $obj = new self;
 
-        $obj->setAmountEx($invoicePainterItemInterface->getInvoicePainterAmountEx());
+        $obj->setUnitPriceEx($invoicePainterItemInterface->getInvoicePainterUnitPriceEx());
         $obj->setTaxRate($invoicePainterItemInterface->getInvoicePainterTaxRate());
         $obj->setDescription($invoicePainterItemInterface->getInvoicePainterDescription());
         $obj->setDate($invoicePainterItemInterface->getInvoicePainterDate());
+        $obj->setUnits($invoicePainterItemInterface->getInvoicePainterUnits());
 
         return $obj;
     }
 
 
     /**
-     * @param mixed $amountEx
+     * @param mixed $unitPriceEx
      */
-    public function setAmountEx($amountEx)
+    public function setUnitPriceEx($unitPriceEx)
     {
-        $this->amountEx = $amountEx;
+        $this->unitPriceEx = $unitPriceEx;
     }
 
     /**
      * @return mixed
      */
-    public function getAmountEx()
+    public function getUnitPriceEx()
     {
-        if ($this->amountEx === null)
+        if ($this->unitPriceEx === null)
         {   //amountEx has not been set, but lest see if we can calculate it
-            if ($this->amountInc === null || $this->taxRate === null)
+            if ($this->unitPriceInc === null || $this->taxRate === null)
             {
                 throw new \Exception('Attempting to get amountEx, but it is null, and there is not enough information to calculate it');
             }
 
-            $this->amountEx = $this->amountInc / (1 + $this->taxRate);
+            $this->unitPriceEx = $this->unitPriceInc / (1 + $this->taxRate);
         }
 
-        return $this->amountEx;
+        return $this->unitPriceEx;
     }
 
     /**
-     * @param mixed $amountInc
+     * @param mixed $unitPriceInc
      */
-    public function setAmountInc($amountInc)
+    public function setUnitPriceInc($unitPriceInc)
     {
-        $this->amountInc = $amountInc;
+        $this->unitPriceInc = $unitPriceInc;
     }
 
     /**
      * @return mixed
      */
-    public function getAmountInc()
+    public function getUnitPriceInc()
     {
-        if ($this->amountInc === null)
+        if ($this->unitPriceInc === null)
         {   //amountInc has not been set, but lest see if we can calculate it
-            if ($this->amountEx === null || $this->taxRate === null)
+            if ($this->unitPriceEx === null || $this->taxRate === null)
             {
                 throw new \Exception('Attempting to get amountInc, but it is null, and there is not enough information to calculate it');
             }
 
-            $this->amountInc = $this->amountEx * (1 + $this->taxRate);
+            $this->unitPriceInc = $this->unitPriceEx * (1 + $this->taxRate);
         }
 
-        return $this->amountInc;
+        return $this->unitPriceInc;
     }
 
     /**
@@ -141,7 +145,35 @@ class InvoicePainterItem
         return $this->taxRate;
     }
 
+    /**
+     * @param mixed $units
+     */
+    public function setUnits($units)
+    {
+        $this->units = $units;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getUnits()
+    {
+        return $this->units;
+    }
 
+    /**
+     * @return float|int
+     * @throws \Exception
+     */
+    public function getAmountEx() {
+        return $this->getUnits() * $this->getUnitPriceEx();
+    }
 
+    /**
+     * @return float|int
+     * @throws \Exception
+     */
+    public function getAmountInc() {
+        return $this->getUnits() * $this->getUnitPriceInc();
+    }
 }

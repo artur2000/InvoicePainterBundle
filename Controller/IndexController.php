@@ -4,23 +4,25 @@
 namespace Realtyhub\InvoicePainterBundle\Controller;
 
 use Realtyhub\InvoicePainterBundle\Entity\InvoicePainterDataContainer;
-use Slik\DompdfBundle\Wrapper\DompdfWrapper;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Knp\Snappy\Pdf;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Templating\EngineInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class IndexController
+class IndexController extends AbstractController
 {
 
     protected $templating;
     protected $dompdf;
     protected $defaultTaxShortName;
+    protected $invoiceTemplate;
 
-    public function __construct(EngineInterface $templating, DompdfWrapper $dompdf, $defaultTaxShortName)
+    public function __construct(EngineInterface $templating, Pdf $dompdf, $defaultTaxShortName, $invoiceViewTemplate)
     {
         $this->templating = $templating;
         $this->dompdf = $dompdf;
         $this->defaultTaxShortName = $defaultTaxShortName;
+        $this->invoiceViewTemplate = $invoiceViewTemplate;
     }
 
     public function paintAction(InvoicePainterDataContainer $invoiceData)
@@ -31,17 +33,21 @@ class IndexController
             $invoiceData->setTaxShortName($this->defaultTaxShortName);
         }
 
-
         $html = $this->renderView(
-            'RealtyhubInvoicePainterBundle::invoice.html.twig',
+            $this->invoiceViewTemplate,
             array(  'invoiceData' => $invoiceData )
         );
 
         // Generate the pdf
-        $this->dompdf->getpdf($html);
+        if (is_file($this->get('kernel')->getProjectDir() . '/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64')) {
+            $this->dompdf->setBinary($this->get('kernel')->getProjectDir() . '/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        } else if ('/usr/local/bin/wkhtmltopdf') {
+            $this->dompdf->setBinary('/usr/local/bin/wkhtmltopdf');
+        } else {
+            throw new \Exception('wkhtmltopdf binary is missing, see https://packagist.org/packages/knplabs/knp-snappy');
+        }
 
-        $pdfContents = $this->dompdf->output();
-
+        $pdfContents = $this->dompdf->getOutputFromHtml($html, []);
 
         return new Response(
             $pdfContents,
@@ -57,7 +63,7 @@ class IndexController
     /**
      * adapted from Symfony/Bundle/FrameworkBundle/Controller/Controller
      */
-    public function renderView($view, array $parameters = array())
+    public function renderView($view, array $parameters = array()): string
     {
         return $this->templating->render($view, $parameters);
     }
