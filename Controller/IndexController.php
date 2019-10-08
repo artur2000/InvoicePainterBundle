@@ -60,14 +60,6 @@ class IndexController extends AbstractController
 
     }
 
-    /**
-     * adapted from Symfony/Bundle/FrameworkBundle/Controller/Controller
-     */
-    public function renderView($view, array $parameters = array()): string
-    {
-        return $this->templating->render($view, $parameters);
-    }
-
     protected function generateDownloadFileName(InvoicePainterDataContainer $invoiceData)
     {
         return 'invoice_'.$invoiceData->getInvoiceNumber().'_'.$invoiceData->getInvoiceDate()->format('Y-m-d').'.pdf';
